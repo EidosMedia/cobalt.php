@@ -1,0 +1,20 @@
+{
+    "name": "eidosmedia/cobalt.php",
+    "description": "Cobalt SDK for PHP lovers",
+    "license": "MIT",
+    "version": "3.2019.03",
+    "require": {
+        "guzzlehttp/guzzle": "~6.0",
+        "danielstjules/stringy": "^3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Eidosmedia\\Cobalt\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Eidosmedia\\Tests\\Cobalt\\": "tests/"
+        }
+    }
+}
