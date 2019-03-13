@@ -11,15 +11,32 @@ class Entity {
     }
 
     public function __call($name, $arguments) {
-        // used for non existing methods
+        // setter user for non existing methods
+        if (strncmp($name, 'set', 3) === 0) {
+            // the method name starts with a get
+            $name = lcfirst(substr_replace($name, '', 0, 3));
+            if (is_array($arguments)) {
+                $this->data[$name] = $arguments[0];
+
+            } elseif (is_scalar($arguments)) {
+                $this->data[$name] = $arguments;
+
+            } else {
+                $this->data[$name] = null;
+            }
+            return;
+        }
+
+        // getter used for non existing methods
         if (strncmp($name, 'get', 3) === 0) {
             // the method name starts with a get
             $name = lcfirst(substr_replace($name, '', 0, 3));
-            if (array_key_exists($name, $this->data)) {
+            if (isset($this->data[$name])) {
                 return $this->data[$name];
             }
+        } else {
+            return null;
         }
-        return null;
     }
 
 }
