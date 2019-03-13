@@ -10,6 +10,11 @@ abstract class Service {
         $this->sdk = $sdk;
     }
 
+    /**
+     * Get Cobalt SDK instance
+     * 
+     * @return sdk object
+     */
     public function getSDK() {
         return $this->sdk;
     }

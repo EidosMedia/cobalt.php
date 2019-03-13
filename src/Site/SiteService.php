@@ -27,6 +27,7 @@ use Stringy\StaticStringy as S;
  */
 class SiteService extends Service {
 
+    const SERVICE_TYPE = 'site';
     private $siteName;
 
     /**
@@ -45,7 +46,7 @@ class SiteService extends Service {
      * @return Sitemap object
      */
     public function getSitemap() {
-        $response = $this->getHttpClient()->get('site', '/api/site', [
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/site', [
             'emk.site' => $this->siteName
         ]);
         return new Sitemap($response);
@@ -58,7 +59,7 @@ class SiteService extends Service {
      * @return NodeData object
      */
     public function getNode($id) {
-        $response = $this->getHttpClient()->get('site', '/api/nodes/' . $id, [
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/nodes/' . $id, [
             'emk.site' => $this->siteName
         ]);
         return new NodeData($response);
@@ -71,7 +72,7 @@ class SiteService extends Service {
      * @return NodeData object
      */
     public function getNodeByForeignId($foreignId) {
-        $response = $this->getHttpClient()->get('site', '/api/nodes/foreignid/' . $foreignId, [
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/nodes/foreignid/' . $foreignId, [
             'emk.site' => $this->siteName
         ]);
         return new NodeData($response);
@@ -106,12 +107,12 @@ class SiteService extends Service {
         } else {
             $query['sectionId'] = $sectionOrIdOrPath;
         }
-        $response = $this->getHttpClient()->get('site', '/api/nodes', $query);
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/nodes', $query);
         $nodes = [];
         foreach ($response['result'] as $resultItem) {
             $nodes[] = new NodeData($resultItem);
         }
-        return new PaginatedResult($nodes, $response['count'], $response['offset'], $response['limit']);
+        return new PaginatedResult($nodes, $response['offset'], $response['limit']);
     }
 
     /**
@@ -120,7 +121,7 @@ class SiteService extends Service {
      * @return menus as an array of Menu object
      */
     public function getMenus() {
-        $response = $this->getHttpClient()->get('site', '/api/menus/', [
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/menus/', [
             'emk.site' => $this->siteName
         ]);
 
@@ -139,7 +140,7 @@ class SiteService extends Service {
      * @return Menu object
      */
     public function getMenu($menuName) {
-        $response = $this->getHttpClient()->get('site', '/api/menus/' . $menuName, [
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/menus/' . $menuName, [
             'emk.site' => $this->siteName
         ]);
         return new Menu($response);
@@ -155,7 +156,7 @@ class SiteService extends Service {
      * @param aggregators as string (optional)
      * @return Page object
      */
-    public function getPage($nodeOrIdOrPath, $view = null, $pageNumber = null, $urlsAbsolute = false, $aggregators = null) {
+    public function getPage($nodeOrIdOrPath, $view = null, $pageNumber = 0, $urlsAbsolute = 'false', $aggregators = null) {
         $query = [
             'emk.site' => $this->siteName,
             'view' => $view,
@@ -171,7 +172,7 @@ class SiteService extends Service {
         } else {
             $api = '/api/pages/' . $nodeOrIdOrPath;
         }
-        $response = $this->getHttpClient()->get('site', $api, $query);
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, $api, $query);
         return new Page($response);
     }
 
@@ -186,7 +187,7 @@ class SiteService extends Service {
             'emk.site' => $this->siteName,
             'url' => $url
         ];
-        $response = $this->getHttpClient()->get('site', '/api/urls/resolve', $query);
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/urls/resolve', $query);
         $fields = array('id', 'outputMode', 'pageNumber', 'permissionVariant');
         $data = array_combine($fields, array_slice(S::split($response, '/'), 2));
         return new ContentDescriptor($data);
@@ -210,7 +211,7 @@ class SiteService extends Service {
             'view' => $evalUrlOptions->getView(),
             'page' => $evalUrlOptions->getPage()
         ];
-        $response = $this->getHttpClient()->get('site', '/api/urls/' . $nodeId, $query);
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/urls/' . $nodeId, $query);
         return new UrlData($response);
     }
 
@@ -237,7 +238,7 @@ class SiteService extends Service {
             'view' => $evalUrlOptions->getView(),
             'page' => $evalUrlOptions->getPage()
         ];
-        $response = $this->getHttpClient()->get('site', '/api/urls/foreignid/' . $foreignId, $query);
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/urls/foreignid/' . $foreignId, $query);
         return new UrlData($response);
     }
 
@@ -277,14 +278,13 @@ class SiteService extends Service {
             'section' => $searchOptions->getSections(),
             'aggregator' => $searchOptions->getAggregators()
         ];
-        $response = $this->getHttpClient()->get('site', '/api/search', $query);
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/api/search', $query);
         $nodes = [];
         foreach ($response['result'] as $resultItem) {
             $nodes[] = new NodeData($resultItem['nodeData']);
         }
         return new PaginatedSearchResult($nodes, $response['archives'], $response['tags'],
-                                         $response['tookMs'], $response['count'], $response['offset'],
-                                         $response['limit']);
+                                         $response['tookMs'], $response['offset'], $response['limit']);
     }
 
 }

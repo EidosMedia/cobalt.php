@@ -4,6 +4,9 @@ namespace Eidosmedia\Cobalt\Commons;
 
 class Request {
 
+    const HTTP_METHOD_GET = 'GET';
+    const HTTP_METHOD_POST = 'POST';
+
     const DEFAULT_MAX_RETRIES = 5;
     const DEFAULT_RETRIABLE = true;
     const DEFAULT_RETRIES_DELAY = 500;
@@ -13,12 +16,14 @@ class Request {
     private $zone;
     private $httpMethod;
     private $path;
+    private $headerParams;
     private $queryParams;
+    private $body;
     private $maxRetries;
     private $retriable;
     private $retriesDelay;
 
-    public function __construct($serviceType, $httpMethod = 'GET') {
+    public function __construct($serviceType, $httpMethod = self::HTTP_METHOD_GET) {
         $this->serviceType = $serviceType;
         $this->httpMethod = $httpMethod;
     }
@@ -55,44 +60,69 @@ class Request {
         return $this->httpMethod;
     }
 
-    public function getPath() {
-        return $this->path;
-    }
-
     public function setPath($path) {
         $this->path = $path;
     }
 
-    public function getQueryParams(){
-        return $this->queryParams;
+    public function getPath() {
+        return $this->path;
     }
 
     public function setQueryParams($queryParams) {
         $this->queryParams = $queryParams;
     }
 
-    public function getMaxRetries() {
-        return $this->maxRetries || Request::DEFAULT_MAX_RETRIES;
+    public function getQueryParams() {
+        return $this->queryParams;
+    }
+
+    public function setHeaderParams($headerParams) {
+        $this->headerParams = $headerParams;
+    }
+
+    public function getHeaderParams() {
+        return $this->headerParams;
+    }
+
+    public function setBody($body) {
+        $this->body = $body;
+    }
+
+    public function getbody() {
+        return $this->body;
     }
 
     public function setMaxRetries($maxRetries) {
         $this->maxRetries = $maxRetries;
     }
 
-    public function isRetriable() {
-        return $this->retriable || Request::DEFAULT_RETRIABLE;
+    public function getMaxRetries() {
+        if (isset($this->maxRetries)) {
+            return $this->maxRetries;
+        }
+        return Request::DEFAULT_MAX_RETRIES;
     }
 
     public function setRetriable($retriable) {
         $this->retriable = $retriable;
     }
 
-    public function getRetriesDelay() {
-        return $this->retriesDelay || Request::DEFAULT_RETRIES_DELAY;
+    public function isRetriable() {
+        if (isset($this->retriable) && is_bool($this->retriable)) {
+            return $this->retriable;
+        }
+        return Request::DEFAULT_RETRIABLE;
     }
 
     public function setRetriesDelay($retriesDelay) {
         $this->retriesDelay = $retriesDelay;
+    }
+
+    public function getRetriesDelay() {
+        if (isset($this->retriesDelay)) {
+            return $this->retriesDelay;
+        }
+        return Request::DEFAULT_RETRIES_DELAY;
     }
 
 }

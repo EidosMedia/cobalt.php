@@ -2,9 +2,12 @@
 
 namespace Eidosmedia\Cobalt;
 
+use Eidosmedia\Cobalt\Comments\CommentsService;
 use Eidosmedia\Cobalt\Commons\HttpClient;
+use Eidosmedia\Cobalt\Directory\DirectoryService;
 use Eidosmedia\Cobalt\Discovery\DiscoveryService;
 use Eidosmedia\Cobalt\Site\SiteService;
+use Eidosmedia\Cobalt\Commons\CobaltAuthorizationContext;
 
 /**
  * Cobalt SDK
@@ -19,18 +22,44 @@ use Eidosmedia\Cobalt\Site\SiteService;
  */
 class CobaltSDK {
 
+    private $realm;
+    private $tenant;
     private $httpClient;
-    private $siteServices = [];
+    private $authContext;
     private $discoveryService;
+    private $commentsServices = [];
+    private $directoryServices = [];
+    private $siteServices = [];
 
     /**
      * Cobalt SDK constructor
      * 
      * @param discovery URI as string
      */
-    public function __construct($discoveryUri) {
+    public function __construct($discoveryUri, $tenant = null, $realm = null) {
+        $this->tenant = $tenant;
+        $this->realm = $realm;
         $this->httpClient = new HttpClient($this, $discoveryUri);
         $this->discoveryService = new DiscoveryService($this);
+        $this->authContext = new CobaltAuthorizationContext();
+    }
+
+    /**
+     * Get tenant
+     * 
+     * @return tenant as string
+     */
+    public function getTenant() {
+        return $this->tenant;
+    }
+
+    /**
+     * Get realm
+     * 
+     * @return realm as string
+     */
+    public function getRealm() {
+        return $this->realm;
     }
 
     /**
@@ -40,6 +69,15 @@ class CobaltSDK {
      */
     public function getHttpClient() {
         return $this->httpClient;
+    }
+
+    /**
+     * Get Cobalt authorization context
+     * 
+     * @return Cobalt authorization context
+     */
+    public function getAuthContext() {
+        return $this->authContext;
     }
 
     /**
@@ -59,14 +97,51 @@ class CobaltSDK {
      */
     public function getSiteService($siteName) {
         $siteService = null;
-        if (isset($this->siteServices[$siteName])) {
-            $siteService = $this->siteServices[$siteName];
+        $context = 'site-' . $this->tenant . '-' . $this->realm . '-' . $siteName;
+        if (isset($this->siteServices[$context])) {
+            $siteService = $this->siteServices[$context];
         }
         if ($siteService == null) {
             $siteService = new SiteService($this, $siteName);
-            $this->siteServices[$siteName] = $siteService;
+            $this->siteServices[$context] = $siteService;
         }
         return $siteService;
+    }
+
+    /**
+     * Get Directory Service
+     * 
+     * @return directory service object
+     */
+    public function getDirectoryService() {
+        $directoryService = null;
+        $context = 'directory-' . $this->tenant . '-' . $this->realm;
+        if (isset($this->directoryService[$context])) {
+            $directoryService = $this->directoryServices[$context];
+        }
+        if ($directoryService == null) {
+            $directoryService = new DirectoryService($this);
+            $this->directoryServices[$context] = $directoryService;
+        }
+        return $directoryService;
+    }
+
+    /**
+     * Get Comments Service
+     * 
+     * @return comments service object
+     */
+    public function getCommentService() {
+        $commentService = null;
+        $context = 'comments-' . $this->tenant . '-' . $this->realm;
+        if (isset($this->commentsServices[$context])) {
+            $commentService = $this->commentsServices[$context];
+        }
+        if ($commentService == null) {
+            $commentService = new CommentsService($this);
+            $this->commentsServices[$context] = $commentService;
+        }
+        return $commentService;
     }
 
 }

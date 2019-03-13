@@ -25,9 +25,11 @@ class Sitemap extends Entity {
                 }
             }
         } else {
-            $node = $this->data['nodes'][$idOrPath];
-            if ($node != null) {
-               return new HierarchicalNodeData($this->data['nodes'][$idOrPath]);
+            if (isset($this->data['nodes'][$idOrPath])) {
+                $node = $this->data['nodes'][$idOrPath];
+                if ($node != null) {
+                    return new HierarchicalNodeData($node);
+                 }
             }
         }
         return null;

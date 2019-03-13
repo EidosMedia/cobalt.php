@@ -1,36 +1,55 @@
 <?php
 
-namespace Eidosmedia\Tests\Cobalt;
+namespace Eidosmedia\Tests\Cobalt\Comments;
 
 use Eidosmedia\Cobalt\CobaltSDK;
-use Eidosmedia\Cobalt\Commons\Exceptions\HttpClientException;
-use Eidosmedia\Cobalt\Commons\PaginatedResult;
-use Eidosmedia\Cobalt\Site\Entities\ContentDescriptor;
-use Eidosmedia\Cobalt\Site\Entities\EvalUrlOptions;
-use Eidosmedia\Cobalt\Site\Entities\HierarchicalNodeData;
-use Eidosmedia\Cobalt\Site\Entities\Menu;
-use Eidosmedia\Cobalt\Site\Entities\NodeData;
-use Eidosmedia\Cobalt\Site\Entities\Page;
-use Eidosmedia\Cobalt\Site\Entities\SearchOptions;
-use Eidosmedia\Cobalt\Site\Entities\Sitemap;
-use Eidosmedia\Cobalt\Site\SiteService;
 use PHPUnit\Framework\TestCase;
-use Stringy\StaticStringy as S;
+use Eidosmedia\Cobalt\Site\SiteService;
+use Eidosmedia\Cobalt\Directory\DirectoryService;
+use Eidosmedia\Cobalt\Comments\CommentsService;
 
-class SiteServiceTest extends TestCase {
+class CobaltSDKTest extends TestCase {
 
     private static $discoveryUri = 'http://localhost:8480/discovery';
     private static $siteName = 'test-site';
+    private static $sdk;
 
     public function testSDKInitialization() {
-        $sdk = new CobaltSDK(self::$discoveryUri);
-        $siteService = $sdk->getSiteService(self::$siteName);
+        self::$sdk = new CobaltSDK(self::$discoveryUri, null, null);
+        self::assertInstanceOf(CobaltSDK::class, self::$sdk);
+    }
+
+    public function testSiteService() {
+        $siteService = self::$sdk->getSiteService(self::$siteName);
+        // first pass, site service is not cached
+        self::assertNotNull($siteService);
         self::assertInstanceOf(SiteService::class, $siteService);
-        // load it from internal cache
-        $siteService = $sdk->getSiteService(self::$siteName);
+        $siteService = self::$sdk->getSiteService(self::$siteName);
+        // second pass, getting cached site service
+        self::assertNotNull($siteService);
         self::assertInstanceOf(SiteService::class, $siteService);
-        $sitemap = $siteService->getSitemap();
-        self::assertInstanceOf(Sitemap::class, $sitemap);
+    }
+
+    public function testDirectoryService() {
+        $directoryService = self::$sdk->getDirectoryService();
+        // first pass, directory service is not cached
+        self::assertNotNull($directoryService);
+        self::assertInstanceOf(DirectoryService::class, $directoryService);
+        $directoryService = self::$sdk->getDirectoryService();
+        // second pass, getting cached directory service
+        self::assertNotNull($directoryService);
+        self::assertInstanceOf(DirectoryService::class, $directoryService);
+    }
+
+    public function testCommentsService() {
+        $commentsService = self::$sdk->getCommentService();
+        // first pass, directory service is not cached
+        self::assertNotNull($commentsService);
+        self::assertInstanceOf(CommentsService::class, $commentsService);
+        $commentsService = self::$sdk->getCommentService();
+        // second pass, getting cached directory service
+        self::assertNotNull($commentsService);
+        self::assertInstanceOf(CommentsService::class, $commentsService);
     }
 
 }

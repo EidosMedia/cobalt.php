@@ -22,10 +22,20 @@ class HttpClient {
         $this->servicesInfosCache['discovery'] = new ServiceInfo('discovery', $discoveryUri);
     }
 
-    public function get($serviceType, $path, $queryParams = null) {
+    public function get($serviceType, $path, $queryParams = null, $headerParams = null) {
         $request = new Request($serviceType);
         $request->setPath($path);
         $request->setQueryParams($queryParams);
+        $request->setHeaderParams($headerParams);
+        return $this->doRequest($request);
+    }
+
+    public function post($serviceType, $path, $queryParams = null, $headerParams = null, $body = null) {
+        $request = new Request($serviceType, Request::HTTP_METHOD_POST);
+        $request->setPath($path);
+        $request->setQueryParams($queryParams);
+        $request->setHeaderParams($headerParams);
+        $request->setBody($body);
         return $this->doRequest($request);
     }
 
@@ -121,7 +131,7 @@ class HttpClient {
                             $queryParamsStr[] = $key . '=' . $value[0];
                         } else {
                             for ($i = 0; $i < $valueCount; $i++) {
-                                $queryParamsStr[] = $key . '[' . $i . ']=' . $value[$i];
+                                $queryParamsStr[] = $key . '=' . $value[$i];
                             }
                         }
                     } else {
@@ -130,6 +140,35 @@ class HttpClient {
                 }
             }
             $options['query'] = implode('&', $queryParamsStr);
+        }
+
+        $headerParams = $request->getHeaderParams();
+        if ($headerParams != null) {
+            $options['headers'] = $headerParams;
+        }
+
+        $tenant = $this->sdk->getTenant();
+        if ($tenant != null && !empty($tenant)) {
+            $options['headers']['X-Cobalt-Tenant'] = $this->sdk->getTenant();
+        }
+
+        $realm = $this->sdk->getRealm();
+        if ($realm != null && !empty($realm)) {
+            $options['headers']['X-Cobalt-Realm'] = $this->sdk->getRealm();
+        }
+
+        if ($request->getHttpMethod() == Request::HTTP_METHOD_POST) {
+            $options['headers']['Content-Type'] = 'application/json';
+        }
+
+        if ($this->sdk->getAuthContext()->getCurrAuth() != null) {
+            $emauth = $this->sdk->getAuthContext()->getCurrAuth()->getSession()->getId();
+            $options['headers']['emauth'] = $emauth;
+        }
+
+        $body = $request->getBody();
+        if ($body != null) {
+            $options['body'] = $body;
         }
 
         // handle other options if needed

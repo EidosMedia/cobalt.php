@@ -5,6 +5,7 @@ namespace Eidosmedia\Tests\Cobalt\Site;
 use Eidosmedia\Cobalt\CobaltSDK;
 use Eidosmedia\Cobalt\Commons\Exceptions\HttpClientException;
 use Eidosmedia\Cobalt\Commons\PaginatedResult;
+use Eidosmedia\Cobalt\Site\Entities\ContentData;
 use Eidosmedia\Cobalt\Site\Entities\ContentDescriptor;
 use Eidosmedia\Cobalt\Site\Entities\EvalUrlOptions;
 use Eidosmedia\Cobalt\Site\Entities\HierarchicalNodeData;
@@ -12,7 +13,9 @@ use Eidosmedia\Cobalt\Site\Entities\Menu;
 use Eidosmedia\Cobalt\Site\Entities\NodeData;
 use Eidosmedia\Cobalt\Site\Entities\Page;
 use Eidosmedia\Cobalt\Site\Entities\SearchOptions;
+use Eidosmedia\Cobalt\Site\Entities\SiteData;
 use Eidosmedia\Cobalt\Site\Entities\Sitemap;
+use Eidosmedia\Cobalt\Site\Entities\SiteNode;
 use Eidosmedia\Cobalt\Site\SiteService;
 use PHPUnit\Framework\TestCase;
 use Stringy\StaticStringy as S;
@@ -24,120 +27,164 @@ class SiteServiceTest extends TestCase {
     private static $sdk;
     private static $siteService;
     private static $sitemap;
+    private static $page;
+    private static $rootNode;
 
-    public static function setUpBeforeClass() {
-        self::$sdk = new CobaltSDK(self::$discoveryUri);
+    public function testSDKInitialization() {
+        self::$sdk = new CobaltSDK(self::$discoveryUri, null, null);
+        self::assertInstanceOf(CobaltSDK::class, self::$sdk);
         self::$siteService = self::$sdk->getSiteService(self::$siteName);
         self::assertInstanceOf(SiteService::class, self::$siteService);
         self::$sitemap = self::$siteService->getSitemap();
         self::assertInstanceOf(Sitemap::class, self::$sitemap);
+        self::$rootNode = self::$sitemap->getRoot();
+        self::assertInstanceOf(NodeData::class, self::$rootNode);
+        self::$page = self::$siteService->getPage(self::$rootNode->getId());
+        self::assertInstanceOf(Page::class, self::$page);
     }
 
     public function testSitemap() {
-        $root = self::$sitemap->getRoot();
-        $this->assertInstanceOf(HierarchicalNodeData::class, $root);
-        $this->assertEquals(self::$siteName, $root->getName());
-        $this->assertNotNull($root->getId());
+        self::assertInstanceOf(Sitemap::class, self::$sitemap);
+        $root = self::$rootNode;
+        self::assertInstanceOf(HierarchicalNodeData::class, $root);
+        self::assertEquals(self::$siteName, $root->getName());
+        self::assertNotNull($root->getId());
         $firstLevelSectionIds = $root->getChildrenIds();
-        $this->assertContainsOnly('string', $firstLevelSectionIds);
-        $this->assertTrue(count($firstLevelSectionIds) > 0);
+        self::assertContainsOnly('string', $firstLevelSectionIds);
+        self::assertTrue(count($firstLevelSectionIds) > 0);
         $firstSectionId = $firstLevelSectionIds[0];
         $section = self::$sitemap->getSection($firstSectionId);
-        $this->assertInstanceOf(HierarchicalNodeData::class, $section);
-        $this->assertEquals($firstSectionId, $section->getId());
+        self::assertInstanceOf(HierarchicalNodeData::class, $section);
+        self::assertEquals($firstSectionId, $section->getId());
         $sectionPath = $section->getSectionPath();
-        $this->assertInternalType('string', $sectionPath);
+        self::assertInternalType('string', $sectionPath);
         $sectionByPath = self::$sitemap->getSection($sectionPath);
-        $this->assertEquals($firstSectionId, $sectionByPath->getId());
+        self::assertEquals($firstSectionId, $sectionByPath->getId());
+        self::assertNull(self::$sitemap->getSection(null));
+        self::assertInternalType('array', self::$sitemap->getNodes());
     }
 
-    public function testNode() {
-        $rootNodeId = self::$sitemap->getRoot()->getId();
+    public function testNodeObject() {
+        $rootNodeId = self::$rootNode->getId();
         $node = self::$siteService->getNode($rootNodeId);
-        $this->assertInstanceOf(NodeData::class, $node);
-        $this->assertEquals($rootNodeId, $node->getId());
+        self::assertInstanceOf(NodeData::class, $node);
+        self::assertEquals($rootNodeId, $node->getId());
+        self::assertInternalType('array', $node->getChildren());
+        self::assertInternalType('array', $node->getZonesNames());
+        self::assertNull($node->getZoneIds(null));
     }
 
     public function testNodeNotFound() {
-        $this->expectException(HttpClientException::class);
+        self::expectException(HttpClientException::class);
         self::$siteService->getNode('an-invalid-id');
     }
 
     public function testNodesBySectionId() {
-        $sectionNode = self::$sitemap->getRoot();
+        $sectionNode = self::$rootNode;
         $sectionPath = $sectionNode->getPubInfo()->getSectionPath();
         $sectionNodeId = $sectionNode->getId();
         $paginatedResult = self::$siteService->getNodesBySection($sectionNodeId);
-        $this->assertInstanceOf(PaginatedResult::class, $paginatedResult);
+        self::assertInstanceOf(PaginatedResult::class, $paginatedResult);
+        self::assertEquals(0, $paginatedResult->getOffset());
+        self::assertEquals(20, $paginatedResult->getLimit());
         $nodes = $paginatedResult->getResult();
         foreach ($nodes as $node) {
-            $this->assertInstanceOf(NodeData::class, $node);
-            $this->assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
-            $this->assertEquals($sectionPath, $node->getPubInfo()->getSectionPath());
+            self::assertInstanceOf(NodeData::class, $node);
+            self::assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
+            self::assertEquals($sectionPath, $node->getPubInfo()->getSectionPath());
         }
     }
 
     public function testNodesBySectionPath() {
-        $sectionNode = self::$sitemap->getRoot();
+        $sectionNode = self::$rootNode;
         $sectionPath = $sectionNode->getPubInfo()->getSectionPath();
         $paginatedResult = self::$siteService->getNodesBySection($sectionPath);
-        $this->assertInstanceOf(PaginatedResult::class, $paginatedResult);
+        self::assertInstanceOf(PaginatedResult::class, $paginatedResult);
         $nodes = $paginatedResult->getResult();
         foreach ($nodes as $node) {
-            $this->assertInstanceOf(NodeData::class, $node);
-            $this->assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
-            $this->assertEquals($sectionPath, $node->getPubInfo()->getSectionPath());
+            self::assertInstanceOf(NodeData::class, $node);
+            self::assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
+            self::assertEquals($sectionPath, $node->getPubInfo()->getSectionPath());
         }
     }
 
     public function testNodesBySectionNode() {
-        $sectionNode = self::$sitemap->getRoot();
+        $sectionNode = self::$rootNode;
         $sectionPath = $sectionNode->getPubInfo()->getSectionPath();
         $paginatedResult = self::$siteService->getNodesBySection($sectionNode);
-        $this->assertInstanceOf(PaginatedResult::class, $paginatedResult);
+        self::assertInstanceOf(PaginatedResult::class, $paginatedResult);
         $nodes = $paginatedResult->getResult();
         foreach ($nodes as $node) {
-            $this->assertInstanceOf(NodeData::class, $node);
-            $this->assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
-            $this->assertEquals($sectionPath, $node->getPubInfo()->getSectionPath());
+            self::assertInstanceOf(NodeData::class, $node);
+            self::assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
+            self::assertEquals($sectionPath, $node->getPubInfo()->getSectionPath());
         }
     }
 
     public function testGetNodeByForeignId() {
-        $sectionNode = self::$sitemap->getRoot();
+        $sectionNode = self::$rootNode;
         $paginatedResult = self::$siteService->getNodesBySection($sectionNode, ['article']);
         $articleWithForeignId = $paginatedResult->getResult()[0];
-        $this->assertNotNull($articleWithForeignId);
-        $this->assertInstanceOf(NodeData::class, $articleWithForeignId);
-        $this->assertInternalType('string', $articleWithForeignId->getForeignId());
-        $this->assertEquals('article', $articleWithForeignId->getSys()->getType());
+        self::assertNotNull($articleWithForeignId);
+        self::assertInstanceOf(NodeData::class, $articleWithForeignId);
+        self::assertInternalType('string', $articleWithForeignId->getForeignId());
+        self::assertEquals('article', $articleWithForeignId->getSys()->getType());
         $articleWithForeignId = $articleWithForeignId->getForeignId();
         $node = self::$siteService->getNodeByForeignId($articleWithForeignId);
-        $this->assertInstanceOf(NodeData::class, $node);
-        $this->assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
-        $this->assertEquals($articleWithForeignId, $node->getForeignId());
+        self::assertInstanceOf(NodeData::class, $node);
+        self::assertEquals(self::$siteName, $node->getPubInfo()->getSiteName());
+        self::assertEquals($articleWithForeignId, $node->getForeignId());
     }
 
     public function testGetPage() {
-        $pageNode = self::$sitemap->getRoot();
-        $page = self::$siteService->getPage($pageNode->getId());
-        $this->assertInstanceOf(Page::class, $page);
-        $this->assertEquals($pageNode->getId(), $page->getModel()->getData()->getId());
+        self::assertInstanceOf(Page::class, self::$page);
+        self::assertInstanceOf(ContentData::class, self::$page->getModel());
+        self::assertInstanceOf(NodeData::class, self::$page->getModel()->getData());
+        self::assertEquals(self::$rootNode->getId(), self::$page->getModel()->getData()->getId());
+        self::assertInternalType('array', self::$page->getModel()->getNodes());
+        self::assertInternalType('array', self::$page->getModel()->getChildren());
+        self::assertInstanceOf(SiteNode::class, self::$page->getSiteNode());
+        self::assertInstanceOf(SiteData::class, self::$page->getSiteData());
+        // get page by node
+        $page = self::$siteService->getPage(self::$page->getCurrentObject());
+        self::assertInstanceOf(Page::class, $page);
+        // get page by path
+        $page = self::$siteService->getPage($page->getSiteNode()->getPath());
+        self::assertInstanceOf(Page::class, $page);
+    }
+
+    public function testGetEmptyPage() {
+        $page = new Page();
+        self::assertInstanceOf(Page::class, $page);
+        self::assertNull($page->getModel());
+        self::assertNull($page->getSiteNode());
+        self::assertNull($page->getSiteData());
+        $page->setModel(new ContentData());
+        self::assertInstanceOf(ContentData::class, $page->getModel());
+        self::assertNull($page->getModel()->getNodes());
+        self::assertNull($page->getModel()->getChildren());
+        self::assertNull($page->getModel()->getNode(null));
+        self::assertNull($page->getModel()->getZonesNames());
+        self::assertNull($page->getModel()->getZoneNodes(null));
+        $page->setSiteNode(new SiteNode());
+        self::assertInstanceOf(SiteNode::class, $page->getSiteNode());
+        $page->setSiteData(new SiteData());
+        self::assertInstanceOf(SiteData::class, $page->getSiteData());
     }
 
     public function testGetMenusAndGetMenu() {
         $menus = self::$siteService->getMenus();
-        $this->assertTrue(count($menus) > 0);
+        self::assertTrue(count($menus) > 0);
         foreach ($menus as $menuName => $menuInstance) {
-            $this->assertInternalType('string', $menuName);
-            $this->assertInstanceOf(Menu::class, $menuInstance);
+            self::assertInternalType('string', $menuName);
+            self::assertInstanceOf(Menu::class, $menuInstance);
             $retrievedMenu = self::$siteService->getMenu($menuInstance->getName());
-            $this->assertEquals($menuInstance, $retrievedMenu);
+            self::assertEquals($menuInstance, $retrievedMenu);
         }
     }
 
     public function testEvalUrlAndResolveUrl() {
-        $rootNode = self::$sitemap->getRoot();
+        $rootNode = self::$rootNode;
         $paginatedResult = self::$siteService->getNodesBySection($rootNode, ['article']);
         $results = $paginatedResult->getResult();
         // using url intent as HOST_RELATIVE
@@ -153,15 +200,15 @@ class SiteServiceTest extends TestCase {
         $evalUrlOptions = new EvalUrlOptions($data);
         foreach ($results as $result) {
             $evaluatedUrlByNodeId = self::$siteService->evalUrlByNodeId($result->getId(), $evalUrlOptions);
-            $this->assertNotNull($evaluatedUrlByNodeId);
+            self::assertNotNull($evaluatedUrlByNodeId);
             if ($result->getForeignId() != null) {
                 $evaluatedUrlByForeignId = self::$siteService->evalUrlByForeignId($result->getForeignId(), $evalUrlOptions);
-                $this->assertEquals($evaluatedUrlByNodeId, $evaluatedUrlByForeignId);
+                self::assertEquals($evaluatedUrlByNodeId, $evaluatedUrlByForeignId);
             }
             $resolvedUrl = self::$siteService->resolveUrl($evaluatedUrlByNodeId->getUrl());
-            $this->assertInstanceOf(ContentDescriptor::class, $resolvedUrl);
-            $this->assertEquals($result->getId(), $resolvedUrl->getId());
-            $this->assertTrue(S::startsWith($resolvedUrl, 'content'));
+            self::assertInstanceOf(ContentDescriptor::class, $resolvedUrl);
+            self::assertEquals($result->getId(), $resolvedUrl->getId());
+            self::assertTrue(S::startsWith($resolvedUrl, 'content'));
         }
     }
 
@@ -170,10 +217,26 @@ class SiteServiceTest extends TestCase {
         $data = ['baseType' => $baseType];
         $searchOptions = new SearchOptions($data);
         $paginatedSearch = self::$siteService->search($searchOptions);
-        $this->assertTrue($paginatedSearch->getCount() > 0);
+        self::assertTrue($paginatedSearch->getCount() > 0);
         $article = $paginatedSearch->getResult()[0];
-        $this->assertInstanceOf(NodeData::class, $article);
-        $this->assertEquals($baseType, $article->getSys()->getBaseType());
+        self::assertInstanceOf(NodeData::class, $article);
+        self::assertEquals($baseType, $article->getSys()->getBaseType());
+    }
+
+    public function testGetSubsectionsMenu() {
+        $subsections = self::$sitemap->getSubsectionsMenu();
+        self::assertInternalType('array', $subsections);
+        foreach ($subsections as $node) {
+            self::assertInstanceOf(NodeData::class, $node);
+        }
+        $subsections = self::$sitemap->getSubsectionsMenu('/');
+        foreach ($subsections as $node) {
+            self::assertInstanceOf(NodeData::class, $node);
+        }
+        $subsections = self::$sitemap->getSubsectionsMenu(self::$sitemap->getRoot());
+        foreach ($subsections as $node) {
+            self::assertInstanceOf(NodeData::class, $node);
+        }
     }
 
 }

@@ -7,31 +7,22 @@ use Eidosmedia\Cobalt\Site\Entities\MenuItem;
 
 class Menu extends Entity {
 
-    public function __construct($data) {
+    public function __construct($data = null) {
         parent::__construct($data);
     }
 
-    public function setName($name) {
-        $this->data['name'] = $name;
-    }
-
-    public function setDescription($description) {
-        $this->data['description'] = $description;
-    }
-
     public function setItems($items) {
-        foreach ($items as $item) {
-            $item = new MenuItem($item);
+        if ($items instanceof MenuItem) {
+            $this->data['items'] = [$items];
+
+        } else if (is_array($items)) {
+            foreach ($items as $item) {
+                if (!$item instanceof MenuItem) {
+                    $item = new MenuItem($item);
+                }
+            }
+            $this->data['items'] = $items;
         }
-        $this->data['items'] = $items;
-    }
-
-    public function setCreationDate($creationDate) {
-        $this->data['creationDate'] = $creationDate;
-    }
-
-    public function setModificationDate($modificationDate) {
-        $this->data['modificationDate'] = $modificationDate;
     }
 
 }

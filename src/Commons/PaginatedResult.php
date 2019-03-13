@@ -5,13 +5,11 @@ namespace Eidosmedia\Cobalt\Commons;
 class PaginatedResult {
 
     private $result;
-    private $count;
     private $offset;
     private $limit;
 
-    public function __construct($result, $count, $offset, $limit) {
+    public function __construct($result, $offset, $limit) {
         $this->result = $result;
-        $this->count = $count;
         $this->offset = $offset;
         $this->limit = $limit;
     }
@@ -21,7 +19,7 @@ class PaginatedResult {
     }
 
     public function getCount() {
-        return $this->count;
+        return count($this->result);
     }
 
     public function getOffset() {

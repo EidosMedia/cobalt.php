@@ -10,8 +10,8 @@ class PaginatedSearchResult extends PaginatedResult {
     private $tags;
     private $tookMs;
 
-    public function __construct($result, $archives, $tags, $tookMs, $count, $offset, $limit) {
-        parent::__construct($result, $count, $offset, $limit);
+    public function __construct($result, $archives, $tags, $tookMs, $offset, $limit) {
+        parent::__construct($result, $offset, $limit);
         $this->archives = $archives;
         $this->tags = $tags;
         $this->tookMs = $tookMs;
