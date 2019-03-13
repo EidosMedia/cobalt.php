@@ -2,7 +2,7 @@
     "name": "eidosmedia/cobalt.php",
     "description": "Cobalt SDK for PHP lovers",
     "license": "MIT",
-    "version": "3.2019.03",
+    "version": "3.2019.04",
     "require": {
         "guzzlehttp/guzzle": "~6.0",
         "danielstjules/stringy": "^3.1"

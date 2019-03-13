@@ -8,16 +8,18 @@ class HierarchicalNodeData extends NodeData {
         parent::__construct($data);
     }
 
-    public function getName() {
-        return $this->data['name'];
-    }
-
     public function getChildrenIds() {
-        return $this->data['hierarchyChildrenIds'];
+        if (isset($this->data['hierarchyChildrenIds'])) {
+            return $this->data['hierarchyChildrenIds'];
+        }
+        return null;
     }
 
     public function getSectionPath() {
-        return $this->data['pubInfo']['sectionPath'];
+        if (isset($this->data['pubInfo']['sectionPath'])) {
+            return $this->data['pubInfo']['sectionPath'];
+        }
+        return null;
     }
 
 }

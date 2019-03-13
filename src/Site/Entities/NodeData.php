@@ -8,72 +8,51 @@ use Eidosmedia\Cobalt\Site\Entities\SystemData;
 
 class NodeData extends Entity {
 
-    public function __construct($data) {
+    public function __construct($data = null) {
         parent::__construct($data);
     }
 
-    public function getId() {
-        return $this->data['id'];
-    }
-
-    public function getParentId() {
-        return $this->data['parentId'];
-    }
-
-    public function getName() {
-        return $this->data['name'];
-    }
-
-    public function getTitle() {
-        return $this->data['title'];
-    }
-
-    public function getAuthors() {
-        if (isset($this->data['authors'])) {
-            return $this->data['authors'];
-        } else {
-            return null;
-        }
-    }
-
-    public function getSummary() {
-        if (isset($this->data['summary'])) {
-            return $this->data['summary'];
-        } else {
-            return null;
-        }
-    }
-
-    public function getDescription() {
-        if (isset($this->data['description'])) {
-            return $this->data['description'];
-        } else {
-            return null;
-        }
-    }
-
-    public function getPictureId() {
-        if (isset($this->data['picture'])) {
-            return $this->data['picture'];
-        } else {
-            return null;
-        }
+    public function setContent($content) {
+        $this->data['files']['content']['data'] = $content;
     }
 
     public function getContent() {
         if (isset($this->data['files']) && isset($this->data['files']['content']) && isset($this->data['files']['content']['data'])) {
             return $this->data['files']['content']['data'];
-        } else {
-            return null;
         }
+        return null;
     }
 
     public function getPubInfo() {
-        return new PublicationData($this->data['pubInfo']);
+        if (isset($this->data['pubInfo'])) {
+            if ($this->data['pubInfo'] instanceof PublicationData) {
+                return $this->data['pubInfo'];
+            }
+            return new PublicationData($this->data['pubInfo']);
+        }
+        return null;
     }
 
     public function getSys() {
-        return new SystemData($this->data['sys']);
+        if (isset($this->data['sys'])) {
+            if ($this->data['sys'] instanceof SystemData) {
+                return $this->data['sys'];
+            }
+            return new SystemData($this->data['sys']);
+        }
+        return null;
+    }
+
+    public function getContentDocument() {
+        if (isset($this->docs['content'])) {
+            return $this->docs['content'];
+        }
+        $content = $this->getContent();
+        if ($content == null) {
+            return null;
+        }
+        $this->docs['content'] = \DOMDocument::loadXML($content);
+        return $this->docs['content'];
     }
 
     public function transformContentDocument($xsl) {
@@ -136,6 +115,5 @@ class NodeData extends Entity {
             return [];
         }
     }
-
 
 }

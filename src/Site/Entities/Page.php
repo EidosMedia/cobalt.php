@@ -9,7 +9,7 @@ use Eidosmedia\Cobalt\Site\Entities\SiteData;
 
 class Page extends Entity {
 
-    public function __construct($data) {
+    public function __construct($data = null) {
         parent::__construct($data);
     }
 
@@ -18,23 +18,33 @@ class Page extends Entity {
     }
 
     public function getModel() {
-        return new ContentData($this->data['model']);
+        if (isset($this->data['model'])) {
+            if ($this->data['model'] instanceof ContentData) {
+                return $this->data['model'];
+            }
+            return new ContentData($this->data['model']);
+        }
+        return null;
     }
 
     public function getSiteNode() {
-        return new SiteNode($this->data['siteNode']);
+        if (isset($this->data['siteNode'])) {
+            if ($this->data['siteNode'] instanceof SiteNode) {
+                return $this->data['siteNode'];
+            }
+            return new SiteNode($this->data['siteNode']);
+        }
+        return null;
     }
 
     public function getSiteData() {
-        return new SiteData($this->data['siteData']);
-    }
-
-    public function getResourceUrl($id) {
-        return $this->data['resourcesUrls'][$id];
-    }
-
-    public function getUrl($id) {
-        return $this->data['nodesUrls'][$id];
+        if (isset($this->data['siteData'])) {
+            if ($this->data['siteData'] instanceof SiteData) {
+                return $this->data['siteData'];
+            }
+            return new SiteData($this->data['siteData']);
+        }
+        return null;
     }
 
 }

@@ -7,36 +7,59 @@ use Eidosmedia\Cobalt\Site\Entities\NodeData;
 
 class ContentData extends Entity {
 
-    public function __construct($data) {
+    public function __construct($data = null) {
         parent::__construct($data);
     }
 
     public function getData() {
-        return new NodeData($this->data['data']);
-    }
-
-    public function getDataType() {
-        return $this->data['dataType'];
+        if (isset($this->data['data'])) {
+            if ($this->data['data'] instanceof NodeData) {
+                return $this->data['data'];
+            }
+            return new NodeData($this->data['data']);
+        }
+        return null;
     }
 
     public function getNodes() {
-        return array_map(function($el) { return new NodeData($el); }, $this->data['nodes']);
+        if (isset($this->data['nodes'])) {
+            return array_map(function($el) {
+                if ($el instanceof NodeData) {
+                    return $el;
+                }
+                return new NodeData($el);
+            },
+            $this->data['nodes']);            
+        }
+        return null;
     }
 
     public function getChildren($node = null) {
         if ($node == null) {
-            return $this->data['children'];
+            if (isset($this->data['children'])) {
+                return $this->data['children'];
+            }
+            return null;
         } else {
             return $node->getChildren();
         }
     }
 
     public function getNode($id) {
-        return new NodeData($this->data['nodes'][$id]);
+        if (isset($this->data['nodes'][$id])) {
+            if ($this->data['nodes'][$id] instanceof NodeData) {
+                return $this->data['nodes'][$id];
+            }
+            return new NodeData($this->data['nodes'][$id]);
+        }
+        return null;
     }
 
     public function getChildNodes($node = null) {
-        $children = array_map(function($id) { return $this->getNode($id); }, $this->getChildren($node));
+        $children = array_map(function($id) {
+            return $this->getNode($id); 
+        }, 
+        $this->getChildren($node));
         $childNodes = [];
         foreach ($children as $child) {
             $childNodes[$child->getId()] = $child;
@@ -44,19 +67,17 @@ class ContentData extends Entity {
         return $childNodes;
     }
 
-    public function getTotalPages() {
-        return $this->data['totalPages'];
-    }
-
-    public function getPage() {
-        return $this->data['page'];
-    }
-
     public function getZonesNames() {
-        return $this->getData()->getZonesNames();
+        if ($this->getData() != null && $this->getData()->getZonesNames() != null) {
+            return $this->getData()->getZonesNames();
+        }
+        return null;
     }
 
     public function getZoneNodes($zoneName, $node = null) {
+        if ($zoneName == null) {
+            return null;
+        }
         if ($node == null) {
             $node = $this->getData();
         }
