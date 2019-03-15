@@ -10,4 +10,11 @@ class SessionData extends Entity {
         parent::__construct($data);
     }
 
+    public function getId() {
+        if (isset($this->data['id'])) {
+            return $this->data['id'];
+        }
+        return null;
+    }
+
 }
