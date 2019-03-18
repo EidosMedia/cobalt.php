@@ -42,11 +42,11 @@ class CobaltSDKTest extends TestCase {
     }
 
     public function testCommentsService() {
-        $commentsService = self::$sdk->getCommentService();
+        $commentsService = self::$sdk->getCommentsService();
         // first pass, directory service is not cached
         self::assertNotNull($commentsService);
         self::assertInstanceOf(CommentsService::class, $commentsService);
-        $commentsService = self::$sdk->getCommentService();
+        $commentsService = self::$sdk->getCommentsService();
         // second pass, getting cached directory service
         self::assertNotNull($commentsService);
         self::assertInstanceOf(CommentsService::class, $commentsService);
