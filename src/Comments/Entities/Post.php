@@ -102,4 +102,59 @@ class Post extends Entity {
         return null;
     }
 
+    public function setCreated($created) {
+        $this->data['created'] = $created;
+    }
+
+    public function getCreated() {
+        if (isset($this->data['created'])) {
+            return $this->data['created'];
+        }
+        return null;
+    }
+
+    public function setLastModified($lastModified) {
+        $this->data['lastModified'] = $lastModified;
+    }
+
+    public function getLastModified() {
+        if (isset($this->data['lastModified'])) {
+            return $this->data['lastModified'];
+        }
+        return null;
+    }
+
+    public function setLastModifierAlias($lastModifierAlias) {
+        $this->data['lastModifierAlias'] = $lastModifierAlias;
+    }
+
+    public function getLastModifierAlias() {
+        if (isset($this->data['lastModifierAlias'])) {
+            return $this->data['lastModifierAlias'];
+        }
+        return null;
+    }
+
+    public function setVoteNegative($voteNegative) {
+        $this->data['voteNegative'] = $voteNegative;
+    }
+
+    public function getVoteNegative() {
+        if (isset($this->data['voteNegative'])) {
+            return $this->data['voteNegative'];
+        }
+        return null;
+    }
+
+    public function setVotePositive($votePositive) {
+        $this->data['votePositive'] = $votePositive;
+    }
+
+    public function getVotePositive() {
+        if (isset($this->data['voteNegative'])) {
+            return $this->data['voteNegative'];
+        }
+        return null;
+    }
+
 }
