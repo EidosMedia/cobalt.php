@@ -73,7 +73,7 @@ class PostOptions extends Entity {
         if (isset($this->data['offset'])) {
             return $this->data['offset'];
         }
-        return null;
+        return 0;
     }
 
     public function setLimit($limit) {
@@ -84,7 +84,7 @@ class PostOptions extends Entity {
         if (isset($this->data['limit'])) {
             return $this->data['limit'];
         }
-        return null;
+        return 5;
     }
 
     public function setPostId($postId) {
