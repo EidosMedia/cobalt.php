@@ -38,7 +38,8 @@ class CommentsService extends Service {
             'lastPostId' => $postOptions->getLastPostId(),
             'utag' => $postOptions->getUtag(),
             'utagFilter' => $postOptions->getUtagFilter(),
-            'sort' => $postOptions->getSort()
+            'sort' => $postOptions->getSort(),
+            'limit' => $postOptions->getLimit()
         ];
         $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/threads/posts', $query);
         $posts = [];
