@@ -10,6 +10,10 @@ class PostOptions extends Entity {
         parent::__construct($data);
     }
 
+    public static function toAssociativeArray($postOptions) {
+        return $postOptions->data;
+    }
+
     public function setThreadId($id) {
         $this->data['id'] = $id;
     }

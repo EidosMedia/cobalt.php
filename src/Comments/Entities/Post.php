@@ -10,8 +10,8 @@ class Post extends Entity {
         parent::__construct($data);
     }
 
-    public function getPost() {
-        return $this->data;
+    public static function toAssociativeArray($post) {
+        return $post->data;
     }
 
     public function setRootId($rootId) {

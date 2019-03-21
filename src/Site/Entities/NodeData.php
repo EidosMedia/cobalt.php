@@ -12,6 +12,17 @@ class NodeData extends Entity {
         parent::__construct($data);
     }
 
+    public function setId($id) {
+        $this->data['id'] = $id;
+    }
+
+    public function getId() {
+        if (isset($this->data['id'])) {
+            return $this->data['id'];
+        }
+        return  null;
+    }
+
     public function setContent($content) {
         $this->data['files']['content']['data'] = $content;
     }
