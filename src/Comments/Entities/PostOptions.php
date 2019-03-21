@@ -131,4 +131,15 @@ class PostOptions extends Entity {
         return null;
     }
 
+    public function setMaxResults($maxResults) {
+        $this->data['maxResults'] = $maxResults;
+    }
+
+    public function getMaxResults() {
+        if (isset($this->data['maxResults'])) {
+            return $this->data['maxResults'];
+        }
+        return 5;
+    }
+
 }
