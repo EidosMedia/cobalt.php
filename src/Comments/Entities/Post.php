@@ -80,6 +80,28 @@ class Post extends Entity {
         return null;
     }
 
+    public function setDomainId($domainId) {
+        $this->data['domainId'] = $domainId;
+    }
+
+    public function getDomainId() {
+        if (isset($this->data['domainId'])) {
+            return $this->data['domainId'];
+        }
+        return null;
+    }
+
+    public function setForumId($forumId) {
+        $this->data['forumId'] = $forumId;
+    }
+
+    public function getForumId() {
+        if (isset($this->data['forumId'])) {
+            return $this->data['forumId'];
+        }
+        return null;
+    }
+
     public function setThreadId($threadId) {
         $this->data['id'] = $threadId;
     }
