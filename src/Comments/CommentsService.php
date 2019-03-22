@@ -30,10 +30,7 @@ class CommentsService extends Service {
         if ($postOptions instanceof PostOptions) {
             $postOptions = PostOptions::toAssociativeArray($postOptions);
         }
-
-        $query = $postOptions;
-
-        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/threads/posts', $query);
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/threads/posts', $postOptions);
         $posts = [];
         foreach ($response['result'] as $post) {
             $posts[] = new Post($post);
