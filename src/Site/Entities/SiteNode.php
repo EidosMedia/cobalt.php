@@ -10,4 +10,26 @@ class SiteNode extends NodeData {
         parent::__construct($data);
     }
 
+    public function setTitle($title) {
+        $this->data['title'] = $title;
+    }
+
+    public function getTitle() {
+        if (isset($this->data['title'])) {
+            return $this->data['title'];
+        }
+        return null;
+    }
+
+    public function setDescription($description) {
+        $this->data['description'] = $description;
+    }
+
+    public function getDescription() {
+        if (isset($this->data['description'])) {
+            return $this->data['description'];
+        }
+        return null;
+    }
+
 }

@@ -22,7 +22,7 @@ class CommentsServiceTest extends TestCase {
         self::$sdk = new CobaltSDK(self::$discoveryUri);
         self::$directoryService = self::$sdk->getDirectoryService();
         self::$directoryService->login('admin', 'admin');
-        self::$commentsService = self::$sdk->getCommentService();
+        self::$commentsService = self::$sdk->getCommentsService();
         self::$externalObjectId = self::$sdk->getSiteService(self::$siteName)->getSitemap()->getRoot()->getId();
         self::assertInstanceOf(CommentsService::class, self::$commentsService);
     }

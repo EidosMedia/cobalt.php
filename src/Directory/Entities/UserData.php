@@ -10,4 +10,11 @@ class UserData extends Entity {
         parent::__construct($data);
     }
 
+    public function getName() {
+        if (isset($this->data['name'])) {
+            return $this->data['name'];
+        }
+        return null;
+    }
+
 }

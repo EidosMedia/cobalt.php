@@ -2,9 +2,10 @@
 
 namespace Eidosmedia\Cobalt\Comments;
 
-use Eidosmedia\Cobalt\Commons\Service;
-use Eidosmedia\Cobalt\Comments\Entities\Post;
 use Eidosmedia\Cobalt\Comments\Entities\PaginatedComments;
+use Eidosmedia\Cobalt\Comments\Entities\Post;
+use Eidosmedia\Cobalt\Comments\Entities\PostOptions;
+use Eidosmedia\Cobalt\Commons\Service;
 
 /**
  * Comments service
@@ -26,21 +27,10 @@ class CommentsService extends Service {
     }
 
     public function listPosts($postOptions) {
-        $query = [
-            'id' => $postOptions->getThreadId(),
-            'externalObjectId' => $postOptions->getExternalObjectId(),
-            'rootId' => $postOptions->getRootId(),
-            'parentId' => $postOptions->getParentId(),
-            'statusId' => $postOptions->getStatusId(),
-            'offset' => $postOptions->getOffset(),
-            'limit' => $postOptions->getLimit(),
-            'postId' => $postOptions->getPostId(),
-            'lastPostId' => $postOptions->getLastPostId(),
-            'utag' => $postOptions->getUtag(),
-            'utagFilter' => $postOptions->getUtagFilter(),
-            'sort' => $postOptions->getSort()
-        ];
-        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/threads/posts', $query);
+        if ($postOptions instanceof PostOptions) {
+            $postOptions = PostOptions::toAssociativeArray($postOptions);
+        }
+        $response = $this->getHttpClient()->get(self::SERVICE_TYPE, '/threads/posts', $postOptions);
         $posts = [];
         foreach ($response['result'] as $post) {
             $posts[] = new Post($post);
@@ -50,7 +40,7 @@ class CommentsService extends Service {
 
     public function createPost($post) {
         if ($post instanceof Post) {
-            $post = $post->getPost();
+            $post = Post::toAssociativeArray($post);
         }
         $body = json_encode($post);
         $response = $this->getHttpClient()->post(self::SERVICE_TYPE, '/posts/create', null, null, $body);
@@ -59,7 +49,7 @@ class CommentsService extends Service {
 
     public function updatePost($post) {
         if ($post instanceof Post) {
-            $post = $post->getPost();
+            $post = Post::toAssociativeArray($post);
         }
         $body = json_encode($post);
         $response = $this->getHttpClient()->post(self::SERVICE_TYPE, '/posts/update', null, null, $body);
@@ -68,7 +58,7 @@ class CommentsService extends Service {
 
     public function deletePost($post) {
         if ($post instanceof Post) {
-            $post = $post->getPost();
+            $post = Post::toAssociativeArray($post);
         }
         $body = json_encode($post);
         $response = $this->getHttpClient()->post(self::SERVICE_TYPE, '/posts/delete', null, null, $body);
