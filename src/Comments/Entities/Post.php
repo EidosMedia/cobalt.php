@@ -10,8 +10,8 @@ class Post extends Entity {
         parent::__construct($data);
     }
 
-    public function getPost() {
-        return $this->data;
+    public static function toAssociativeArray($post) {
+        return $post->data;
     }
 
     public function setRootId($rootId) {
@@ -80,6 +80,28 @@ class Post extends Entity {
         return null;
     }
 
+    public function setDomainId($domainId) {
+        $this->data['domainId'] = $domainId;
+    }
+
+    public function getDomainId() {
+        if (isset($this->data['domainId'])) {
+            return $this->data['domainId'];
+        }
+        return null;
+    }
+
+    public function setForumId($forumId) {
+        $this->data['forumId'] = $forumId;
+    }
+
+    public function getForumId() {
+        if (isset($this->data['forumId'])) {
+            return $this->data['forumId'];
+        }
+        return null;
+    }
+
     public function setThreadId($threadId) {
         $this->data['id'] = $threadId;
     }
@@ -98,6 +120,61 @@ class Post extends Entity {
     public function getContent() {
         if (isset($this->data['content'])) {
             return $this->data['content'];
+        }
+        return null;
+    }
+
+    public function setCreated($created) {
+        $this->data['created'] = $created;
+    }
+
+    public function getCreated() {
+        if (isset($this->data['created'])) {
+            return $this->data['created'];
+        }
+        return null;
+    }
+
+    public function setLastModified($lastModified) {
+        $this->data['lastModified'] = $lastModified;
+    }
+
+    public function getLastModified() {
+        if (isset($this->data['lastModified'])) {
+            return $this->data['lastModified'];
+        }
+        return null;
+    }
+
+    public function setLastModifierAlias($lastModifierAlias) {
+        $this->data['lastModifierAlias'] = $lastModifierAlias;
+    }
+
+    public function getLastModifierAlias() {
+        if (isset($this->data['lastModifierAlias'])) {
+            return $this->data['lastModifierAlias'];
+        }
+        return null;
+    }
+
+    public function setVoteNegative($voteNegative) {
+        $this->data['voteNegative'] = $voteNegative;
+    }
+
+    public function getVoteNegative() {
+        if (isset($this->data['voteNegative'])) {
+            return $this->data['voteNegative'];
+        }
+        return null;
+    }
+
+    public function setVotePositive($votePositive) {
+        $this->data['votePositive'] = $votePositive;
+    }
+
+    public function getVotePositive() {
+        if (isset($this->data['voteNegative'])) {
+            return $this->data['voteNegative'];
         }
         return null;
     }

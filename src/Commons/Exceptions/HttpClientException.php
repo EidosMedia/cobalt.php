@@ -15,4 +15,16 @@ class HttpClientException extends SDKException {
         $this->body = $body;
     }
 
+    public function getStatusCode() {
+        return $this->statusCode;
+    }
+
+    public function getStatusPhrase() {
+        return $this->statusPhrase;
+    }
+
+    public function getBody() {
+        return $this->body;
+    }
+
 }

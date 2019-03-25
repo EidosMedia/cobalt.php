@@ -131,7 +131,7 @@ class CobaltSDK {
      * 
      * @return comments service object
      */
-    public function getCommentService() {
+    public function getCommentsService() {
         $commentService = null;
         $context = 'comments-' . $this->tenant . '-' . $this->realm;
         if (isset($this->commentsServices[$context])) {

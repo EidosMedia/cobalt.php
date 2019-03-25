@@ -10,4 +10,15 @@ class SiteData extends Entity {
         parent::__construct($data);
     }
 
+    public function setTitle($title) {
+        $this->data['title'] = $title;
+    }
+
+    public function getTitle() {
+        if (isset($this->data['title'])) {
+            return $this->data['title'];
+        }
+        return null;
+    }
+
 }

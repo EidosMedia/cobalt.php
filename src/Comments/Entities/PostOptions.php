@@ -10,6 +10,10 @@ class PostOptions extends Entity {
         parent::__construct($data);
     }
 
+    public static function toAssociativeArray($postOptions) {
+        return $postOptions->data;
+    }
+
     public function setThreadId($id) {
         $this->data['id'] = $id;
     }
@@ -73,7 +77,7 @@ class PostOptions extends Entity {
         if (isset($this->data['offset'])) {
             return $this->data['offset'];
         }
-        return null;
+        return 0;
     }
 
     public function setLimit($limit) {
@@ -84,7 +88,7 @@ class PostOptions extends Entity {
         if (isset($this->data['limit'])) {
             return $this->data['limit'];
         }
-        return null;
+        return 5;
     }
 
     public function setPostId($postId) {
